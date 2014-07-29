@@ -1,3 +1,8 @@
 #!/bin/bash
 ./submodules/docker/install
 ./submodules/nginx/install
+
+cp ./submodules/nginx/files/helloworld_nginx_conf /etc/nginx/sites-enabled/helloworld
+mkdir -p /var/apps/helloworld
+echo "HELLO WORLD" > /var/apps/helloworld/index.html
+
