@@ -5,4 +5,4 @@
 cp ./submodules/nginx/files/helloworld_nginx_conf /etc/nginx/sites-enabled/helloworld
 mkdir -p /var/apps/helloworld
 echo "HELLO WORLD" > /var/apps/helloworld/index.html
-
+echo "<?php phpinfo(); ?>" > /var/apps/helloworld/index.php
