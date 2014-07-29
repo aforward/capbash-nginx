@@ -1,2 +1,3 @@
 #!/bin/bash
+./submodules/docker/install
 ./submodules/nginx/install
