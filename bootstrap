@@ -1,0 +1,6 @@
+#!/bin/bash
+mkdir -p ./nodes
+cp ./submodules/nginx/files/nginx_node ./nodes/nginx
+chmod 755 ./nodes/nginx
+
+./capbash install docker
