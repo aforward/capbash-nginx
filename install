@@ -17,14 +17,18 @@ NGINX_INCLUDE_PHP=${NGINX_INCLUDE_PHP-true}
 #-----------
 
 mkdir -p /var/apps/nginx
+mkdir -p /var/apps/nginx/startup.d
 
 cp ./submodules/nginx/files/nginx.dockerfile /var/apps/nginx/Dockerfile
 
 if [[ "$NGINX_INCLUDE_PHP" = true ]]; then
   sed -i 's|# @PHP_INSTALL@|cat ./submodules/nginx/files/php_partial.dockerfile|e' /var/apps/nginx/Dockerfile
-  sed -i 's|# @DEFAULT_COMMAND@|cat ./submodules/nginx/files/php_start.dockerfile|e' /var/apps/nginx/Dockerfile
+  printf '#!/bin/bash\n/etc/init.d/php5-fpm restart\n' > /var/apps/nginx/startup.d/php5_fpm
+  chmod 755 /var/apps/nginx/startup.d/php5_fpm
 else
-  sed -i 's|# @DEFAULT_COMMAND@|CMD ["nginx"]|g' /var/apps/nginx/Dockerfile
+  printf '#!/bin/bash\n# Do nothing\n' > /var/apps/nginx/startup.d/empty
+  chmod 755 /var/apps/nginx/startup.d/empty
+  rm -f /var/apps/nginx/startup.d/php5_fpm
 fi
 
 (cd /var/apps/nginx && docker build -t nginx .)
