@@ -18,6 +18,7 @@ NGINX_INCLUDE_PHP=${NGINX_INCLUDE_PHP-true}
 
 mkdir -p /var/apps/nginx
 mkdir -p /var/apps/nginx/startup.d
+mkdir -p $NGINX_SITES_ENABLED_DIR
 
 cp ./submodules/nginx/files/nginx.dockerfile /var/apps/nginx/Dockerfile
 
