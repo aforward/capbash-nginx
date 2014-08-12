@@ -26,10 +26,12 @@ The available configurations include:
 
 ```
 NGINX_SITES_ENABLED_DIR=${NGINX_SITES_ENABLED_DIR-/etc/nginx/sites-enabled}
+NGINX_SITES_AVAILABLE_DIR=${NGINX_SITES_AVAILABLE_DIR-/etc/nginx/sites-available}
 NGINX_LOG_DIR=${NGINX_LOG_DIR-/var/log/nginx}
 NGINX_HTTP_PORT=${NGINX_HTTP_PORT-80}
 NGINX_SSL_PORT=${NGINX_SSL_PORT-443}
 NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/apps}
+NGINX_INCLUDE_PHP=${NGINX_INCLUDE_PHP-true}
 ```
 
 You will need to configure your installer to drop NGINX config files into $NGINX_SITES_ENABLED_DIR, and they should reference

@@ -20,7 +20,7 @@ RUN \
 # @PHP_INSTALL@
 
 # Define mountable directories.
-VOLUME ["/data", "/etc/nginx/sites-enabled", "/var/log/nginx"]
+VOLUME ["/data", "/etc/nginx/sites-enabled", "/etc/nginx/sites-available", "/var/log/nginx"]
 
 # Define working directory.
 WORKDIR /etc/nginx
