@@ -12,12 +12,14 @@ RUN \
   apt-get update && \
   apt-get install -y nginx && \
   echo "\ndaemon off;" >> /etc/nginx/nginx.conf && \
+  sed -i 's|# server_names_hash_bucket_size|server_names_hash_bucket_size|g' /etc/nginx/nginx.conf && \
   chown -R www-data:www-data /var/lib/nginx
 
 RUN \
   apt-get install -y inotify-tools
 
 # @PHP_INSTALL@
+# @MYSQL_INSTALL@
 
 # Define mountable directories.
 VOLUME ["/data", "/etc/nginx/sites-enabled", "/etc/nginx/sites-available", "/var/log/nginx"]

@@ -2,5 +2,5 @@
 
 RUNNING=`docker ps | grep nginx:latest`
 if [[ "$RUNNING" == "" ]]; then
-  /var/apps/nginx/daemon
+  /var/apps/nginx/start
 fi
