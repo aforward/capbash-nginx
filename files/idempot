@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNNING=`docker ps | grep nginx:latest`
+RUNNING=`docker ps | grep nginx`
 if [[ "$RUNNING" == "" ]]; then
   echo "Starting NGINX container..."
   /var/apps/nginx/start

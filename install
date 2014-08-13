@@ -49,8 +49,8 @@ if [[ "$DOCKER_SUPPORT_LXC" == true ]]; then
   chmod 755 /var/apps/nginx/console
 fi
 
-echo "docker run -i -p $NGINX_HTTP_PORT:80 -p $NGINX_SSL_PORT:443 -v $NGINX_APPS_DIR:/var/apps -v $NGINX_SITES_ENABLED_DIR:/etc/nginx/sites-enabled -v $NGINX_SITES_AVAILABLE_DIR:/etc/nginx/sites-available -v $NGINX_LOG_DIR:/var/log/nginx -t nginx /bin/bash" > /var/apps/nginx/debug
-echo "docker run -d -p $NGINX_HTTP_PORT:80 -p $NGINX_SSL_PORT:443 -v $NGINX_APPS_DIR:/var/apps -v $NGINX_SITES_ENABLED_DIR:/etc/nginx/sites-enabled -v $NGINX_SITES_AVAILABLE_DIR:/etc/nginx/sites-available -v $NGINX_LOG_DIR:/var/log/nginx nginx" > /var/apps/nginx/start
+echo "docker run -i -t -p $NGINX_HTTP_PORT:80 -p $NGINX_SSL_PORT:443 -v $NGINX_APPS_DIR:/var/apps -v $NGINX_SITES_ENABLED_DIR:/etc/nginx/sites-enabled -v $NGINX_SITES_AVAILABLE_DIR:/etc/nginx/sites-available -v $NGINX_LOG_DIR:/var/log/nginx nginx /bin/bash" > /var/apps/nginx/debug
+printf "#!/bin/bash\ndocker rm nginx > /dev/num\ndocker run -d -t -p $NGINX_HTTP_PORT:80 -p $NGINX_SSL_PORT:443 -v $NGINX_APPS_DIR:/var/apps -v $NGINX_SITES_ENABLED_DIR:/etc/nginx/sites-enabled -v $NGINX_SITES_AVAILABLE_DIR:/etc/nginx/sites-available -v $NGINX_LOG_DIR:/var/log/nginx --name nginx nginx" > /var/apps/nginx/start
 echo 'docker stop $(docker ps | grep nginx | awk '{print $1}')' > /var/apps/nginx/stop
 
 cp ./submodules/nginx/files/idempot /var/apps/nginx/idempot
