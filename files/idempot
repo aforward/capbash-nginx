@@ -1,9 +1,0 @@
-#!/bin/bash
-
-RUNNING=`docker ps | grep nginx`
-if [[ "$RUNNING" == "" ]]; then
-  echo "Starting NGINX container..."
-  /var/apps/nginx/start
-else
-  echo "NGINX container already running"
-fi
