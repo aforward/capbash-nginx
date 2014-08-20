@@ -72,8 +72,15 @@ docker run -d -t \\
   nginx" > /var/apps/nginx/start
 
 printf "%b" "#!/bin/bash
-docker stop \$(docker ps | grep nginx | awk '{print \$1}')
-"> /var/apps/nginx/stop
+CONTAINER_ID=\$(docker ps | grep nginx | awk '{print \$1}')
+if [[ \"\$CONTAINER_ID\" == '' ]]; then
+  echo 'NGINX container already stopped, nothing to do.'
+else
+  echo 'Stopping NGINX...'
+  docker stop \$CONTAINER_ID
+  echo 'DONE Stopping NGINX.'
+fi
+" > /var/apps/nginx/stop
 
 printf "%b" "#!/bin/bash
 RUNNING=\`docker ps | grep nginx\`
