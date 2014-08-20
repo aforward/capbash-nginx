@@ -51,8 +51,8 @@ fi
 
 printf "%b" "#!/bin/bash
 docker run -i -t \\
-  -p $NGINX_HTTP_PORT:80 \\
-  -p $NGINX_SSL_PORT:443 \\
+  -p 9997:80 \\
+  -p 9996:443 \\
   -v $NGINX_APPS_DIR:/var/apps \\
   -v $NGINX_SITES_ENABLED_DIR:/etc/nginx/sites-enabled \\
   -v $NGINX_SITES_AVAILABLE_DIR:/etc/nginx/sites-available \\
