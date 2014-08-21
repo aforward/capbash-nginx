@@ -71,28 +71,8 @@ docker run -d -t \\
   --name nginx \\
   nginx" > /var/apps/nginx/start
 
-printf "%b" "#!/bin/bash
-CONTAINER_ID=\$(docker ps | grep nginx | awk '{print \$1}')
-if [[ \"\$CONTAINER_ID\" == '' ]]; then
-  echo 'NGINX container already stopped, nothing to do.'
-else
-  echo 'Stopping NGINX...'
-  docker stop \$CONTAINER_ID
-  echo 'DONE Stopping NGINX.'
-fi
-" > /var/apps/nginx/stop
-
-printf "%b" "#!/bin/bash
-RUNNING=\`docker ps | grep nginx\`
-if [[ \"\$RUNNING\" == '' ]]; then
-  echo 'Starting NGINX container...'
-  /var/apps/nginx/start
-else
-  echo 'NGINX container already running'
-fi
-" > /var/apps/nginx/idempot
+NAME=nginx DIR=/var/apps/nginx ./submodules/docker/idempot
+NAME=nginx DIR=/var/apps/nginx ./submodules/docker/stop
 
 chmod 755 /var/apps/nginx/start
-chmod 755 /var/apps/nginx/idempot
 chmod 755 /var/apps/nginx/debug
-chmod 755 /var/apps/nginx/stop
