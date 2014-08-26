@@ -15,19 +15,21 @@ RUN \
   sed -i 's|# server_names_hash_bucket_size|server_names_hash_bucket_size|g' /etc/nginx/nginx.conf && \
   chown -R www-data:www-data /var/lib/nginx
 
-RUN \
-  apt-get install -y inotify-tools
+RUN mkdir -p /etc/nginx/startup.d
+
+ADD files/do_nothing /etc/nginx/startup.d/do_nothing
 
 # @PHP_INSTALL@
 # @MYSQL_INSTALL@
+# @RELOAD_INSTALL@
 
-# Define mountable directories.
+RUN chmod 755 -R /etc/nginx/startup.d/
+
 VOLUME ["/data", "/etc/nginx/sites-enabled", "/etc/nginx/sites-available", "/var/log/nginx"]
 
-# Define working directory.
 WORKDIR /etc/nginx
 
-CMD run-parts /var/apps/nginx/startup.d && nginx
+CMD run-parts /etc/nginx/startup.d && nginx
 
 # Expose ports.
 EXPOSE 80

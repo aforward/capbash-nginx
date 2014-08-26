@@ -9,10 +9,12 @@ NGINX_SITES_AVAILABLE_DIR=${NGINX_SITES_AVAILABLE_DIR-/etc/nginx/sites-available
 NGINX_LOG_DIR=${NGINX_LOG_DIR-/var/log/nginx}
 NGINX_HTTP_PORT=${NGINX_HTTP_PORT-80}
 NGINX_SSL_PORT=${NGINX_SSL_PORT-443}
+NGINX_LAUNCHER_DIR=${NGINX_LAUNCHER_DIR-/var/nginx}
 NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/apps}
 
 NGINX_INCLUDE_PHP=${NGINX_INCLUDE_PHP-true}
 NGINX_INCLUDE_MYSQL=${NGINX_INCLUDE_MYSQL-true}
+NGINX_INCLUDE_RELOAD=${NGINX_INCLUDE_RELOAD-true}
 
 DOCKER_SUPPORT_LXC=${DOCKER_SUPPORT_LXC-false}
 
@@ -20,59 +22,66 @@ DOCKER_SUPPORT_LXC=${DOCKER_SUPPORT_LXC-false}
 # Install Script
 #-----------
 
-mkdir -p /var/apps/nginx
-mkdir -p /var/apps/nginx/startup.d
+mkdir -p $NGINX_LAUNCHER_DIR/files
 mkdir -p $NGINX_SITES_ENABLED_DIR $NGINX_SITES_AVAILABLE_DIR
 
 chown -R www-data:www-data $NGINX_SITES_ENABLED_DIR
 chown -R www-data:www-data $NGINX_SITES_AVAILABLE_DIR
-cp ./submodules/nginx/files/nginx.dockerfile /var/apps/nginx/Dockerfile
+cp ./submodules/nginx/files/nginx.dockerfile $NGINX_LAUNCHER_DIR/Dockerfile
+
+cp ./submodules/nginx/files/php5_fpm $NGINX_LAUNCHER_DIR/files/php5_fpm
+
+if [[ ! -e $NGINX_LAUNCHER_DIR/files/do_nothing ]]; then
+  printf '#!/bin/bash\n# Do nothing\n' > $NGINX_LAUNCHER_DIR/files/do_nothing
+  chmod 755 $NGINX_LAUNCHER_DIR/files/do_nothing
+fi
 
 if [[ "$NGINX_INCLUDE_PHP" = true ]]; then
-  sed -i 's|# @PHP_INSTALL@|cat ./submodules/nginx/files/php_partial.dockerfile|e' /var/apps/nginx/Dockerfile
-  printf '#!/bin/bash\n/etc/init.d/php5-fpm restart\n' > /var/apps/nginx/startup.d/php5_fpm
-  chmod 755 /var/apps/nginx/startup.d/php5_fpm
-else
-  printf '#!/bin/bash\n# Do nothing\n' > /var/apps/nginx/startup.d/empty
-  chmod 755 /var/apps/nginx/startup.d/empty
-  rm -f /var/apps/nginx/startup.d/php5_fpm
+  sed -i 's|# @PHP_INSTALL@|cat ./submodules/nginx/files/php_partial.dockerfile|e' $NGINX_LAUNCHER_DIR/Dockerfile
 fi
 
 if [[ "$NGINX_INCLUDE_MYSQL" = true ]]; then
-  sed -i 's|# @MYSQL_INSTALL@|cat ./submodules/nginx/files/mysql_partial.dockerfile|e' /var/apps/nginx/Dockerfile
+  sed -i 's|# @MYSQL_INSTALL@|cat ./submodules/nginx/files/mysql_partial.dockerfile|e' $NGINX_LAUNCHER_DIR/Dockerfile
 fi
 
-(cd /var/apps/nginx && docker build -t nginx .)
+if [[ "$NGINX_INCLUDE_RELOAD" = true ]]; then
+  cp ./submodules/nginx/files/nginx_touch $NGINX_LAUNCHER_DIR/files/nginx_touch
+  cp ./submodules/nginx/files/touchandgo $NGINX_LAUNCHER_DIR/files/touchandgo
+  cp ./submodules/nginx/files/nginx_reload $NGINX_LAUNCHER_DIR/files/nginx_reload
+  sed -i 's|# @RELOAD_INSTALL@|cat ./submodules/nginx/files/reload_partial.dockerfile|e' $NGINX_LAUNCHER_DIR/Dockerfile
+fi
+
+(cd $NGINX_LAUNCHER_DIR && docker build -t nginx .)
 
 if [[ "$DOCKER_SUPPORT_LXC" == true ]]; then
-  cp ./submodules/nginx/files/console /var/apps/nginx/console
-  chmod 755 /var/apps/nginx/console
+  cp ./submodules/nginx/files/console $NGINX_LAUNCHER_DIR/console
+  chmod 755 $NGINX_LAUNCHER_DIR/console
 fi
 
 printf "%b" "#!/bin/bash
 docker run -i -t \\
   -p 9997:80 \\
   -p 9996:443 \\
-  -v $NGINX_APPS_DIR:/var/apps \\
+  -v $NGINX_APPS_DIR:/data \\
   -v $NGINX_SITES_ENABLED_DIR:/etc/nginx/sites-enabled \\
   -v $NGINX_SITES_AVAILABLE_DIR:/etc/nginx/sites-available \\
   -v $NGINX_LOG_DIR:/var/log/nginx \\
-  nginx /bin/bash" > /var/apps/nginx/debug
+  nginx /bin/bash" > $NGINX_LAUNCHER_DIR/debug
 
 printf "%b" "#!/bin/bash
 docker rm nginx > /dev/num
 docker run -d -t \\
   -p $NGINX_HTTP_PORT:80 \\
   -p $NGINX_SSL_PORT:443 \\
-  -v $NGINX_APPS_DIR:/var/apps \\
+  -v $NGINX_APPS_DIR:/data \\
   -v $NGINX_SITES_ENABLED_DIR:/etc/nginx/sites-enabled \\
   -v $NGINX_SITES_AVAILABLE_DIR:/etc/nginx/sites-available \\
   -v $NGINX_LOG_DIR:/var/log/nginx \\
   --name nginx \\
-  nginx" > /var/apps/nginx/start
+  nginx" > $NGINX_LAUNCHER_DIR/start
 
-NAME=nginx DIR=/var/apps/nginx ./submodules/docker/idempot
-NAME=nginx DIR=/var/apps/nginx ./submodules/docker/stop
+NAME=nginx DIR=$NGINX_LAUNCHER_DIR ./submodules/docker/idempot
+NAME=nginx DIR=$NGINX_LAUNCHER_DIR ./submodules/docker/stop
 
-chmod 755 /var/apps/nginx/start
-chmod 755 /var/apps/nginx/debug
+chmod 755 $NGINX_LAUNCHER_DIR/start
+chmod 755 $NGINX_LAUNCHER_DIR/debug

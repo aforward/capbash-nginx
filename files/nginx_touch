@@ -1,0 +1,4 @@
+#!/bin/bash
+touch /data/nginx_reload
+chmod 777 /data/nginx_reload
+/usr/local/bin/touchandgo /data/nginx_reload /usr/local/bin/nginx_reload &
