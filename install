@@ -9,18 +9,20 @@ NGINX_SITES_AVAILABLE_DIR=${NGINX_SITES_AVAILABLE_DIR-/etc/nginx/sites-available
 NGINX_LOG_DIR=${NGINX_LOG_DIR-/var/log/nginx}
 NGINX_HTTP_PORT=${NGINX_HTTP_PORT-80}
 NGINX_SSL_PORT=${NGINX_SSL_PORT-443}
-NGINX_LAUNCHER_DIR=${NGINX_LAUNCHER_DIR-/var/local/nginx}
 NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/local/apps}
+NGINX_INCLUDE_RELOAD=${NGINX_INCLUDE_RELOAD-true}
+NGINX_LAUNCHER_DIR=${NGINX_LAUNCHER_DIR-/var/local/nginx}
 
 NGINX_INCLUDE_PHP=${NGINX_INCLUDE_PHP-true}
 NGINX_INCLUDE_MYSQL=${NGINX_INCLUDE_MYSQL-true}
-NGINX_INCLUDE_RELOAD=${NGINX_INCLUDE_RELOAD-true}
 
 DOCKER_SUPPORT_LXC=${DOCKER_SUPPORT_LXC-false}
 
 #-----------
 # Install Script
 #-----------
+
+echo "Install nginx..."
 
 mkdir -p $NGINX_LAUNCHER_DIR/files
 mkdir -p $NGINX_LAUNCHER_DIR/startup.d
@@ -39,10 +41,12 @@ if [[ ! -e $NGINX_LAUNCHER_DIR/files/do_nothing ]]; then
 fi
 
 if [[ "$NGINX_INCLUDE_PHP" = true ]]; then
+  echo "  -- enabling php"
   sed -i 's|# @PHP_INSTALL@|cat ./submodules/nginx/files/php_partial.dockerfile|e' $NGINX_LAUNCHER_DIR/Dockerfile
 fi
 
 if [[ "$NGINX_INCLUDE_MYSQL" = true ]]; then
+  echo "  -- enabling mysql"
   sed -i 's|# @MYSQL_INSTALL@|cat ./submodules/nginx/files/mysql_partial.dockerfile|e' $NGINX_LAUNCHER_DIR/Dockerfile
 fi
 
@@ -56,6 +60,7 @@ fi
 (cd $NGINX_LAUNCHER_DIR && docker build -t nginx .)
 
 if [[ "$DOCKER_SUPPORT_LXC" == true ]]; then
+  echo "  -- enabling LXC support"
   cp ./submodules/nginx/files/console $NGINX_LAUNCHER_DIR/console
   chmod 755 $NGINX_LAUNCHER_DIR/console
 fi
@@ -87,3 +92,5 @@ NAME=nginx DIR=$NGINX_LAUNCHER_DIR ./submodules/docker/stop
 
 chmod 755 $NGINX_LAUNCHER_DIR/start
 chmod 755 $NGINX_LAUNCHER_DIR/debug
+
+echo "DONE, Install nginx."
