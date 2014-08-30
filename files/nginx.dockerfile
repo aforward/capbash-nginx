@@ -27,7 +27,7 @@ VOLUME ["/data", "/etc/nginx/sites-enabled", "/etc/nginx/sites-available", "/var
 # Define working directory.
 WORKDIR /etc/nginx
 
-CMD run-parts /var/apps/nginx/startup.d && nginx
+CMD run-parts /var/local/nginx/startup.d && nginx
 
 # Expose ports.
 EXPOSE 80
