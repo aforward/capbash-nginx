@@ -1,7 +1,7 @@
 server {
   listen   80;
 
-  root /var/apps/helloworld;
+  root /var/local/apps/helloworld;
   index index.html index.php;
 
   location / {

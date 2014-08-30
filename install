@@ -9,8 +9,8 @@ NGINX_SITES_AVAILABLE_DIR=${NGINX_SITES_AVAILABLE_DIR-/etc/nginx/sites-available
 NGINX_LOG_DIR=${NGINX_LOG_DIR-/var/log/nginx}
 NGINX_HTTP_PORT=${NGINX_HTTP_PORT-80}
 NGINX_SSL_PORT=${NGINX_SSL_PORT-443}
-NGINX_LAUNCHER_DIR=${NGINX_LAUNCHER_DIR-/var/nginx}
-NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/apps}
+NGINX_LAUNCHER_DIR=${NGINX_LAUNCHER_DIR-/var/local/nginx}
+NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/local/apps}
 
 NGINX_INCLUDE_PHP=${NGINX_INCLUDE_PHP-true}
 NGINX_INCLUDE_MYSQL=${NGINX_INCLUDE_MYSQL-true}
@@ -23,10 +23,12 @@ DOCKER_SUPPORT_LXC=${DOCKER_SUPPORT_LXC-false}
 #-----------
 
 mkdir -p $NGINX_LAUNCHER_DIR/files
+mkdir -p $NGINX_LAUNCHER_DIR/startup.d
 mkdir -p $NGINX_SITES_ENABLED_DIR $NGINX_SITES_AVAILABLE_DIR
 
 chown -R www-data:www-data $NGINX_SITES_ENABLED_DIR
 chown -R www-data:www-data $NGINX_SITES_AVAILABLE_DIR
+
 cp ./submodules/nginx/files/nginx.dockerfile $NGINX_LAUNCHER_DIR/Dockerfile
 
 cp ./submodules/nginx/files/php5_fpm $NGINX_LAUNCHER_DIR/files/php5_fpm

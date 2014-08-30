@@ -30,7 +30,7 @@ NGINX_SITES_AVAILABLE_DIR=${NGINX_SITES_AVAILABLE_DIR-/etc/nginx/sites-available
 NGINX_LOG_DIR=${NGINX_LOG_DIR-/var/log/nginx}
 NGINX_HTTP_PORT=${NGINX_HTTP_PORT-80}
 NGINX_SSL_PORT=${NGINX_SSL_PORT-443}
-NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/apps}
+NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/local/apps}
 NGINX_INCLUDE_PHP=${NGINX_INCLUDE_PHP-true}
 ```
 
@@ -45,7 +45,7 @@ server {
   listen       80;
   server_name  0.0.0.0;
   client_max_body_size 4G;
-  root /var/apps/example;
+  root /var/local/apps/example;
   index index.html;
 }
 ```
@@ -53,14 +53,14 @@ server {
 And, then
 
 ```
-mkdir -p /var/apps/example
-echo "HELLO WORLD" > /var/apps/example/index.html
+mkdir -p /var/local/apps/example
+echo "HELLO WORLD" > /var/local/apps/example/index.html
 ```
 
 Now, when you start the daemon,
 
 ```
-/var/nginx/start
+/var/local/nginx/start
 ```
 
 You should be able to see the sample page (replace the IP address) at

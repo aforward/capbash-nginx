@@ -23,7 +23,7 @@ ADD files/do_nothing /etc/nginx/startup.d/do_nothing
 # @MYSQL_INSTALL@
 # @RELOAD_INSTALL@
 
-RUN chmod 755 -R /etc/nginx/startup.d/
+RUN chmod 755 -R /etc/nginx/startup.d
 
 VOLUME ["/data", "/etc/nginx/sites-enabled", "/etc/nginx/sites-available", "/var/log/nginx"]
 
