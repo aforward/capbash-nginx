@@ -5,15 +5,16 @@ source ./submodules/bootstrap/logging
 # Configurations
 #-----------
 
-NGINX_SITES_ENABLED_DIR=${NGINX_SITES_ENABLED_DIR-/etc/nginx/sites-enabled}
-NGINX_SITES_AVAILABLE_DIR=${NGINX_SITES_AVAILABLE_DIR-/etc/nginx/sites-available}
-NGINX_LOG_DIR=${NGINX_LOG_DIR-/var/log/nginx}
-NGINX_HTTP_PORT=${NGINX_HTTP_PORT-80}
-NGINX_SSL_PORT=${NGINX_SSL_PORT-443}
-NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/local/apps}
-NGINX_INCLUDE_RELOAD=${NGINX_INCLUDE_RELOAD-true}
 NGINX_LAUNCHER_DIR=${NGINX_LAUNCHER_DIR-/var/local/nginx}
 
+export NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/local/apps}
+export NGINX_SITES_ENABLED_DIR=${NGINX_SITES_ENABLED_DIR-/etc/nginx/sites-enabled}
+export NGINX_SITES_AVAILABLE_DIR=${NGINX_SITES_AVAILABLE_DIR-/etc/nginx/sites-available}
+export NGINX_LOG_DIR=${NGINX_LOG_DIR-/var/log/nginx}
+export NGINX_HTTP_PORT=${NGINX_HTTP_PORT-80}
+export NGINX_SSL_PORT=${NGINX_SSL_PORT-443}
+
+NGINX_INCLUDE_RELOAD=${NGINX_INCLUDE_RELOAD-true}
 NGINX_INCLUDE_PHP=${NGINX_INCLUDE_PHP-true}
 NGINX_INCLUDE_MYSQL=${NGINX_INCLUDE_MYSQL-true}
 
@@ -58,7 +59,7 @@ if [[ "$NGINX_INCLUDE_RELOAD" = true ]]; then
   sed -i 's|# @RELOAD_INSTALL@|cat ./submodules/nginx/files/reload_partial.dockerfile|e' $NGINX_LAUNCHER_DIR/Dockerfile
 fi
 
-(cd $NGINX_LAUNCHER_DIR && docker build -t nginx .)
+LAUNCHER_DIR=$NGINX_LAUNCHER_DIR NAME=nginx ./submodules/docker/build
 
 if [[ "$DOCKER_SUPPORT_LXC" == true ]]; then
   notify "  -- enabling LXC support"
@@ -66,31 +67,9 @@ if [[ "$DOCKER_SUPPORT_LXC" == true ]]; then
   chmod 755 $NGINX_LAUNCHER_DIR/console
 fi
 
-printf "%b" "#!/bin/bash
-docker run -i -t \\
-  -p 9997:80 \\
-  -p 9996:443 \\
-  -v $NGINX_APPS_DIR:/data \\
-  -v $NGINX_SITES_ENABLED_DIR:/etc/nginx/sites-enabled \\
-  -v $NGINX_SITES_AVAILABLE_DIR:/etc/nginx/sites-available \\
-  -v $NGINX_LOG_DIR:/var/log/nginx \\
-  nginx /bin/bash" > $NGINX_LAUNCHER_DIR/debug
-
-printf "%b" "#!/bin/bash
-docker rm nginx > /dev/num
-docker run -d -t \\
-  -p $NGINX_HTTP_PORT:80 \\
-  -p $NGINX_SSL_PORT:443 \\
-  -v $NGINX_APPS_DIR:/data \\
-  -v $NGINX_SITES_ENABLED_DIR:/etc/nginx/sites-enabled \\
-  -v $NGINX_SITES_AVAILABLE_DIR:/etc/nginx/sites-available \\
-  -v $NGINX_LOG_DIR:/var/log/nginx \\
-  --name nginx \\
-  nginx" > $NGINX_LAUNCHER_DIR/start
-
-NAME=nginx DIR=$NGINX_LAUNCHER_DIR ./submodules/docker/helpers
-
-chmod 755 $NGINX_LAUNCHER_DIR/start
-chmod 755 $NGINX_LAUNCHER_DIR/debug
+NAME=nginx DIR=$NGINX_LAUNCHER_DIR \
+  START=./submodules/nginx/files/_start \
+  DEBUG=./submodules/nginx/files/_debug \
+  ./submodules/docker/helpers
 
 notify "DONE, Install nginx."

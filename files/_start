@@ -1,0 +1,9 @@
+docker run -d -t
+  -p $NGINX_HTTP_PORT:80
+  -p $NGINX_SSL_PORT:443
+  -v $NGINX_APPS_DIR:/data
+  -v $NGINX_SITES_ENABLED_DIR:/etc/nginx/sites-enabled
+  -v $NGINX_SITES_AVAILABLE_DIR:/etc/nginx/sites-available
+  -v $NGINX_LOG_DIR:/var/log/nginx
+  --name nginx
+  nginx
