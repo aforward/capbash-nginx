@@ -2,11 +2,9 @@
 # https://github.com/dockerfile/nginx
 FROM ubuntu:14.04
 
-RUN apt-get -qq update
-RUN apt-get install -y wget git build-essential
-
 # Install Nginx.
-RUN \
+RUN apt-get -qq update && \
+  apt-get install -y wget git build-essential && \
   apt-get install -y software-properties-common && \
   add-apt-repository -y ppa:nginx/stable && \
   apt-get -qq update && \
@@ -21,6 +19,7 @@ ADD files/do_nothing /etc/nginx/startup.d/do_nothing
 
 # @PHP_INSTALL@
 # @MYSQL_INSTALL@
+# @POSTGRES_INSTALL@
 # @RELOAD_INSTALL@
 
 RUN chmod 755 -R /etc/nginx/startup.d

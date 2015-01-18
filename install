@@ -9,6 +9,8 @@ NGINX_LAUNCHER_DIR=${NGINX_LAUNCHER_DIR-/var/local/nginx}
 NGINX_INCLUDE_RELOAD=${NGINX_INCLUDE_RELOAD-true}
 NGINX_INCLUDE_PHP=${NGINX_INCLUDE_PHP-true}
 NGINX_INCLUDE_MYSQL=${NGINX_INCLUDE_MYSQL-true}
+NGINX_INCLUDE_POSTGRES=${NGINX_INCLUDE_POSTGRES-true}
+
 DOCKER_SUPPORT_LXC=${DOCKER_SUPPORT_LXC-false}
 
 export NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/local/apps}
@@ -33,7 +35,8 @@ chown -R www-data:www-data $NGINX_SITES_AVAILABLE_DIR
 
 cp ./submodules/nginx/files/nginx.dockerfile $NGINX_LAUNCHER_DIR/Dockerfile
 
-cp ./submodules/nginx/files/php5_fpm $NGINX_LAUNCHER_DIR/files/php5_fpm
+TEMPLATE=./submodules/nginx/files/postgres_host LOCATION=$NGINX_LAUNCHER_DIR/files/postgres_host ./submodules/docker/copyif
+TEMPLATE=./submodules/nginx/files/php5_fpm LOCATION=$NGINX_LAUNCHER_DIR/files/php5_fpm ./submodules/docker/copyif
 
 if [[ ! -e $NGINX_LAUNCHER_DIR/files/do_nothing ]]; then
   printf '#!/bin/bash\n# Do nothing\n' > $NGINX_LAUNCHER_DIR/files/do_nothing
@@ -51,10 +54,18 @@ if [[ "$NGINX_INCLUDE_MYSQL" = true ]]; then
 fi
 
 if [[ "$NGINX_INCLUDE_RELOAD" = true ]]; then
-  cp ./submodules/nginx/files/nginx_touch $NGINX_LAUNCHER_DIR/files/nginx_touch
-  cp ./submodules/nginx/files/touchandgo $NGINX_LAUNCHER_DIR/files/touchandgo
-  cp ./submodules/nginx/files/nginx_reload $NGINX_LAUNCHER_DIR/files/nginx_reload
+  TEMPLATE=./submodules/nginx/files/nginx_touch LOCATION=$NGINX_LAUNCHER_DIR/files/nginx_touch ./submodules/docker/copyif
+  TEMPLATE=./submodules/nginx/files/touchandgo LOCATION=$NGINX_LAUNCHER_DIR/files/touchandgo ./submodules/docker/copyif
+  TEMPLATE=./submodules/nginx/files/nginx_reload LOCATION=$NGINX_LAUNCHER_DIR/files/nginx_reload ./submodules/docker/copyif
   sed -i 's|# @RELOAD_INSTALL@|cat ./submodules/nginx/files/reload_partial.dockerfile|e' $NGINX_LAUNCHER_DIR/Dockerfile
+fi
+
+if [[ "$NGINX_INCLUDE_POSTGRES" == true ]]; then
+  debug "  -- enabling postgres"
+  sed -i 's|# @POSTGRES_INSTALL@|cat ./submodules/nginx/files/postgres_partial.dockerfile|e' $NGINX_LAUNCHER_DIR/Dockerfile
+  NGINX_LINK_CMD="--link postgres:psqldb \\"
+else
+  NGINX_LINK_CMD=""
 fi
 
 LAUNCHER_DIR=$NGINX_LAUNCHER_DIR NAME=nginx ./submodules/docker/build

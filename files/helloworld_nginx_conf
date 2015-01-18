@@ -3,6 +3,7 @@ server {
 
   root /var/local/apps/helloworld;
   index index.html index.php;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
 
   location / {
     try_files $uri $uri/ /index.html;
