@@ -1,8 +1,8 @@
 #!/bin/bash
-./submodules/docker/install
-./submodules/nginx/install
+./bits/docker/install
+./bits/nginx/install
 
-cp ./submodules/nginx/files/helloworld_nginx_conf /etc/nginx/sites-enabled/helloworld
+cp ./bits/nginx/files/helloworld_nginx_conf /etc/nginx/sites-enabled/helloworld
 mkdir -p /var/local/apps/helloworld
 echo "HELLO WORLD" > /var/local/apps/helloworld/index.html
 echo "<?php phpinfo(); ?>" > /var/local/apps/helloworld/index.php
