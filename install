@@ -5,7 +5,10 @@ source ./bits/bootstrap/logging
 # Configurations
 #-----------
 
-NGINX_LAUNCHER_DIR=${NGINX_LAUNCHER_DIR-/var/local/nginx}
+LAUNCHER_OWNER=${LAUNCHER_OWNER-$USER}
+export LAUNCHER_DIR=${LAUNCHER_DIR-/var/local}
+export NGINX_LAUNCHER_DIR=${NGINX_LAUNCHER_DIR-$LAUNCHER_DIR/nginx}
+
 NGINX_INCLUDE_RELOAD=${NGINX_INCLUDE_RELOAD-true}
 NGINX_INCLUDE_PHP=${NGINX_INCLUDE_PHP-true}
 NGINX_INCLUDE_MYSQL=${NGINX_INCLUDE_MYSQL-true}
@@ -26,12 +29,8 @@ export NGINX_SSL_PORT=${NGINX_SSL_PORT-443}
 
 notify "Install nginx..."
 
-mkdir -p $NGINX_LAUNCHER_DIR/files
-mkdir -p $NGINX_LAUNCHER_DIR/startup.d
-mkdir -p $NGINX_SITES_ENABLED_DIR $NGINX_SITES_AVAILABLE_DIR
-
-chown -R www-data:www-data $NGINX_SITES_ENABLED_DIR
-chown -R www-data:www-data $NGINX_SITES_AVAILABLE_DIR
+OWNER=$LAUNCHER_OWNER ./bits/bootstrap/mkdir LAUNCHER_DIR NGINX_LAUNCHER_DIR $NGINX_LAUNCHER_DIR/startup.d $NGINX_LAUNCHER_DIR/files
+OWNER=$LAUNCHER_OWNER:www-data ./bits/bootstrap/mkdir NGINX_SITES_ENABLED_DIR NGINX_SITES_AVAILABLE_DIR
 
 cp ./bits/nginx/files/nginx.dockerfile $NGINX_LAUNCHER_DIR/Dockerfile
 
