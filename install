@@ -32,8 +32,7 @@ notify "Install nginx..."
 OWNER=$LAUNCHER_OWNER ./bits/bootstrap/mkdir LAUNCHER_DIR NGINX_LAUNCHER_DIR $NGINX_LAUNCHER_DIR/startup.d $NGINX_LAUNCHER_DIR/files
 OWNER=$LAUNCHER_OWNER:www-data ./bits/bootstrap/mkdir NGINX_SITES_ENABLED_DIR NGINX_SITES_AVAILABLE_DIR
 
-cp ./bits/nginx/files/nginx.dockerfile $NGINX_LAUNCHER_DIR/Dockerfile
-
+TEMPLATE=./bits/nginx/files/nginx.dockerfile LOCATION=$NGINX_LAUNCHER_DIR/Dockerfile ./bits/docker/copyif
 TEMPLATE=./bits/nginx/files/postgres_host LOCATION=$NGINX_LAUNCHER_DIR/files/postgres_host ./bits/docker/copyif
 TEMPLATE=./bits/nginx/files/php5_fpm LOCATION=$NGINX_LAUNCHER_DIR/files/php5_fpm ./bits/docker/copyif
 
