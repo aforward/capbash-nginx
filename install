@@ -15,8 +15,6 @@ NGINX_INCLUDE_PHP=${NGINX_INCLUDE_PHP-true}
 NGINX_INCLUDE_MYSQL=${NGINX_INCLUDE_MYSQL-true}
 NGINX_INCLUDE_POSTGRES=${NGINX_INCLUDE_POSTGRES-true}
 
-DOCKER_SUPPORT_LXC=${DOCKER_SUPPORT_LXC-false}
-
 export NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/local/apps}
 export NGINX_SITES_ENABLED_DIR=${NGINX_SITES_ENABLED_DIR-/etc/nginx/sites-enabled}
 export NGINX_SITES_AVAILABLE_DIR=${NGINX_SITES_AVAILABLE_DIR-/etc/nginx/sites-available}
@@ -68,12 +66,6 @@ else
 fi
 
 LAUNCHER_DIR=$NGINX_LAUNCHER_DIR NAME=nginx ./bits/docker/build
-
-if [[ "$DOCKER_SUPPORT_LXC" == true ]]; then
-  notify "  -- enabling LXC support"
-  cp ./bits/nginx/files/console $NGINX_LAUNCHER_DIR/console
-  chmod 755 $NGINX_LAUNCHER_DIR/console
-fi
 
 NAME=nginx DIR=$NGINX_LAUNCHER_DIR \
   START=./bits/nginx/files/_start \
