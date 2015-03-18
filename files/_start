@@ -5,5 +5,6 @@ docker run -d -t
   -v $NGINX_SITES_ENABLED_DIR:/etc/nginx/sites-enabled
   -v $NGINX_SITES_AVAILABLE_DIR:/etc/nginx/sites-available
   -v $NGINX_LOG_DIR:/var/log/nginx
+  --add-host=mysql.local:\$(${DOCKER_LAUNCHER_DIR}/dockerip)
   --name nginx
   nginx
