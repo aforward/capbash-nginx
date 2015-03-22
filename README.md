@@ -27,7 +27,8 @@ The available configurations include:
 ```
 NGINX_SITES_ENABLED_DIR=${NGINX_SITES_ENABLED_DIR-/etc/nginx/sites-enabled}
 NGINX_SITES_AVAILABLE_DIR=${NGINX_SITES_AVAILABLE_DIR-/etc/nginx/sites-available}
-NGINX_LOG_DIR=${NGINX_LOG_DIR-/var/log/nginx}
+LOG_DIR=${LOG_DIR-/var/log}
+NGINX_LOG_DIR=${GIT_LOG_DIR-$LOG_DIR/nginx}
 NGINX_HTTP_PORT=${NGINX_HTTP_PORT-80}
 NGINX_SSL_PORT=${NGINX_SSL_PORT-443}
 NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/local/apps}
