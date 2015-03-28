@@ -1,0 +1,38 @@
+#!/bin/bash
+
+#-----------
+# Configurations
+#-----------
+
+NAME=$NAME
+LAUNCHER_OWNER=${LAUNCHER_OWNER-deployer}
+export NGINX_SITES_ENABLED_DIR=${NGINX_SITES_ENABLED_DIR-/etc/nginx/sites-enabled}
+export NGINX_APPS_DIR=${NGINX_APPS_DIR-$LAUNCHER_DIR/apps}
+
+APP_LAUNCHER_DIR=$NGINX_APPS_DIR/$NAME
+APP_CONFIG=$NGINX_SITES_ENABLED_DIR/$NAME
+
+
+#-----------
+# Install Script
+#-----------
+
+printf "%b" "#!/bin/bash
+source /usr/local/bin/logging
+IP=\$($APP_LAUNCHER_DIR/ip)
+if [[ \"\$IP\" == '' ]]; then
+  debug \"Resetting $APP_CONFIG IP 127.0.0.1\"
+  sed -i \"s|[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*|127.0.0.1|g\" $APP_CONFIG
+else
+  debug \"Updating $APP_CONFIG IP \$IP\"
+  sed -i \"s|[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*|\$IP|g\" $APP_CONFIG
+fi
+touch $NGINX_APPS_DIR/nginx_reload
+" > $APP_LAUNCHER_DIR/sync_ip
+
+chmod 755 $APP_LAUNCHER_DIR/sync_ip
+OWNER=$LAUNCHER_OWNER ./bits/bootstrap/chownif $APP_LAUNCHER_DIR/sync_ip
+
+echo "$APP_LAUNCHER_DIR/sync_ip" >> $APP_LAUNCHER_DIR/start
+echo "$APP_LAUNCHER_DIR/sync_ip" >> $APP_LAUNCHER_DIR/stop
+echo "$APP_LAUNCHER_DIR/sync_ip" >> $APP_LAUNCHER_DIR/idempot

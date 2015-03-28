@@ -14,7 +14,7 @@ NGINX_INCLUDE_PHP=${NGINX_INCLUDE_PHP-true}
 NGINX_INCLUDE_MYSQL=${NGINX_INCLUDE_MYSQL-true}
 NGINX_INCLUDE_POSTGRES=${NGINX_INCLUDE_POSTGRES-true}
 
-export NGINX_APPS_DIR=${NGINX_APPS_DIR-/var/local/apps}
+export NGINX_APPS_DIR=${NGINX_APPS_DIR-$LAUNCHER_DIR/apps}
 export NGINX_SITES_ENABLED_DIR=${NGINX_SITES_ENABLED_DIR-/etc/nginx/sites-enabled}
 export NGINX_SITES_AVAILABLE_DIR=${NGINX_SITES_AVAILABLE_DIR-/etc/nginx/sites-available}
 
@@ -67,10 +67,6 @@ else
 fi
 
 LAUNCHER_DIR=$NGINX_LAUNCHER_DIR NAME=nginx ./bits/docker/build
-
-NAME=nginx DIR=$NGINX_LAUNCHER_DIR \
-  START=./bits/nginx/files/_start \
-  DEBUG=./bits/nginx/files/_debug \
-  ./bits/docker/helpers
+NAME=nginx DIR=$NGINX_LAUNCHER_DIR BIT=nginx ./bits/docker/helpers
 
 notify "DONE, Install nginx."
